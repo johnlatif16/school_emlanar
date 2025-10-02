@@ -14,14 +14,8 @@
       <button type="submit">دخول</button>
     </form>
 
-    <button onclick="showChangeForm('username')">تغيير اسم المستخدم؟</button>
-    <button onclick="showChangeForm('password')">تغيير كلمة السر؟</button>
-
-    <div id="changeForm" style="display:none; margin-top:20px;">
-      <h3 id="changeTitle"></h3>
-      <input type="text" id="newValue" placeholder="القيمة الجديدة"><br>
-      <button onclick="submitChange()">حفظ</button>
-    </div>
+    <button onclick="changeUsername()">تغيير اسم المستخدم</button>
+    <button onclick="changePassword()">تغيير كلمة السر</button>
   </div>
 
   <script>
@@ -45,35 +39,36 @@
       }
     });
 
-    let changeType = "";
-    function showChangeForm(type) {
-      changeType = type;
-      document.getElementById("changeForm").style.display = "block";
-      document.getElementById("changeTitle").innerText = 
-        type === "username" ? "تغيير اسم المستخدم" : "تغيير كلمة السر";
+    function changeUsername() {
+      const newUsername = prompt("اكتب اسم المستخدم الجديد:");
+      if (!newUsername) return;
+      updateCreds({ newUsername });
     }
 
-    async function submitChange() {
-      const newValue = document.getElementById("newValue").value;
-      if (!newValue) return alert("من فضلك أدخل قيمة جديدة");
+    function changePassword() {
+      const newPassword = prompt("اكتب كلمة السر الجديدة:");
+      if (!newPassword) return;
+      updateCreds({ newPassword });
+    }
 
+    async function updateCreds(data) {
       const token = localStorage.getItem("token");
-      if (!token) return alert("يلزم تسجيل الدخول لتغيير البيانات");
-
-      const res = await fetch(`/api/admin/change-${changeType}`, {
+      if (!token) {
+        alert("لازم تسجل الدخول الأول!");
+        return;
+      }
+      const res = await fetch("/api/admin/change-credentials", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
           "Authorization": "Bearer " + token
         },
-        body: JSON.stringify({ value: newValue })
+        body: JSON.stringify(data)
       });
-
       if (res.ok) {
-        alert(`${changeType === "username" ? "اسم المستخدم" : "كلمة السر"} تم تغييره بنجاح`);
-        document.getElementById("changeForm").style.display = "none";
+        alert("تم تحديث البيانات");
       } else {
-        alert("فشل تغيير البيانات");
+        alert("خطأ أثناء التحديث");
       }
     }
   </script>
