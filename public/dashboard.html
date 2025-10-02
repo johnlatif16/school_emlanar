@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة التحكم</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <h2>لوحة التحكم</h2>
+    <button onclick="logout()">تسجيل خروج</button>
+    <button onclick="changeUsername()">تغيير اسم المستخدم؟</button>
+    <button onclick="changePassword()">تغيير كلمة السر؟</button>
+
+    <nav>
+      <button onclick="showTab('students')">الطلاب</button>
+      <button onclick="showTab('in')">الدخول</button>
+      <button onclick="showTab('out')">الخروج</button>
+      <button onclick="showTab('absent')">الغياب</button>
+      <button onclick="showTab('escaped')">الهروب</button>
+    </nav>
+
+    <div id="content"></div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "/login.html";
+
+    async function fetchData() {
+      const resStudents = await fetch("/api/students", { headers: { Authorization: "Bearer " + token } });
+      const resLogs = await fetch("/api/attendance", { headers: { Authorization: "Bearer " + token } });
+
+      if (!resStudents.ok || !resLogs.ok) {
+        logout();
+        return;
+      }
+
+      const students = await resStudents.json();
+      const logs = await resLogs.json();
+      return { students, logs };
+    }
+
+    function showTab(tab) {
+      fetchData().then(({ students, logs }) => {
+        let html = "";
+        if (tab === "students") {
+          html = "<h3>الطلاب</h3><ul>";
+          students.forEach(s => html += `<li>${s.name} - ${s.phone}</li>`);
+          html += "</ul>";
+        } else {
+          const filtered = logs.filter(l => l.type === tab);
+          html = `<h3>${tab}</h3><ul>`;
+          filtered.forEach(l => html += `<li>${l.studentId} - ${l.timestamp}</li>`);
+          html += "</ul>";
+        }
+        document.getElementById("content").innerHTML = html;
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "/login.html";
+    }
+
+    function changeUsername() {
+      alert("ميزة تغيير اسم المستخدم لسه Placeholder");
+    }
+
+    function changePassword() {
+      alert("ميزة تغيير كلمة المرور لسه Placeholder");
+    }
+
+    // فتح تبويب الطلاب افتراضياً
+    showTab("students");
+  </script>
+</body>
+</html>
