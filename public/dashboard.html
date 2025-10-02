@@ -50,13 +50,21 @@
           const filtered = logs.filter(l => l.type === tab);
           html = `<h3>${tab}</h3><ul>`;
           filtered.forEach(l => html += `<li>${l.studentId} - ${l.timestamp}</li>`);
-          html += "</ul>`;
+          html += "</ul>";
         }
         document.getElementById("content").innerHTML = html;
       });
     }
 
-    function logout() {
+    async function logout() {
+      try {
+        await fetch("/api/admin/logout", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token }
+        });
+      } catch (e) {
+        console.error("Logout error:", e);
+      }
       localStorage.removeItem("token");
       window.location.href = "/login.html";
     }
