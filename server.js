@@ -77,6 +77,23 @@ function authenticateAdmin(req, res, next) {
   });
 }
 
+// === API لتغيير اسم المستخدم أو الباسورد ===
+app.post('/api/admin/change-username', authenticateAdmin, async (req, res) => {
+  const { value } = req.body;
+  if (!value) return res.status(400).json({ error: 'قيمة غير صحيحة' });
+
+  await db.collection('admin').doc('creds').set({ username: value }, { merge: true });
+  res.json({ success: true });
+});
+
+app.post('/api/admin/change-password', authenticateAdmin, async (req, res) => {
+  const { value } = req.body;
+  if (!value) return res.status(400).json({ error: 'قيمة غير صحيحة' });
+
+  await db.collection('admin').doc('creds').set({ password: value }, { merge: true });
+  res.json({ success: true });
+});
+
 // === API جلب الطلاب ===
 app.get('/api/students', authenticateAdmin, async (req, res) => {
   try {
