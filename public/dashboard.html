@@ -9,8 +9,6 @@
   <div class="dashboard-container">
     <h2>لوحة التحكم</h2>
     <button onclick="logout()">تسجيل خروج</button>
-    <button onclick="changeUsername()">تغيير اسم المستخدم؟</button>
-    <button onclick="changePassword()">تغيير كلمة السر؟</button>
 
     <nav>
       <button onclick="showTab('students')">الطلاب</button>
@@ -32,8 +30,8 @@
       const resLogs = await fetch("/api/attendance", { headers: { Authorization: "Bearer " + token } });
 
       if (!resStudents.ok || !resLogs.ok) {
-        logout();
-        return;
+        alert("خطأ في تحميل البيانات. برجاء تسجيل الدخول مرة أخرى.");
+        return { students: [], logs: [] };
       }
 
       const students = await resStudents.json();
@@ -52,7 +50,7 @@
           const filtered = logs.filter(l => l.type === tab);
           html = `<h3>${tab}</h3><ul>`;
           filtered.forEach(l => html += `<li>${l.studentId} - ${l.timestamp}</li>`);
-          html += "</ul>";
+          html += "</ul>`;
         }
         document.getElementById("content").innerHTML = html;
       });
@@ -61,14 +59,6 @@
     function logout() {
       localStorage.removeItem("token");
       window.location.href = "/login.html";
-    }
-
-    function changeUsername() {
-      alert("ميزة تغيير اسم المستخدم لسه Placeholder");
-    }
-
-    function changePassword() {
-      alert("ميزة تغيير كلمة المرور لسه Placeholder");
     }
 
     // فتح تبويب الطلاب افتراضياً
